@@ -56,6 +56,7 @@ HOTKEYS_TEXT =\
   Toggle Sequence Start/End Sound         F8
   Map Play Button                         F9
   Start Recording                         F10
+  Transparency Mode                       F12
   Stop Recording                          Select (On controller)
   Press Start on P2 Controller            Home Key
   Press Select on P2 Controller           End Key
@@ -152,7 +153,22 @@ def on_press(key):
             else:
                 print('Recording configuration needs to be loaded before recording can begin', file=writer)
         else:
-            print('Controller was not detected during startup - recording is disabled', file=writer)
+            print('Controller was not detected during startup - Recording is disabled', file=writer)
+    # Transparency Mode
+    if key_val == "Key.f12": # F12
+        if controller_detected:
+            if eddiecontroller.rec_config_file:
+                # Change this thread
+                    print('Starting Transparency Mode (P1 side), press RIGHT_THUMB to stop', file=writer)
+                    set_side(P1)
+                    worker = Worker(eddiecontroller.transparency)
+                    eddiecontroller.threadpool.start(worker)
+                    eddiecontroller.release_all()
+                    return
+            else:
+                print('Recording configuration needs to be loaded before transparency mode can begin', file=writer)
+        else:
+            print('Controller was not detected during startup - Transparency mode is disabled', file=writer)
     if eddiecontroller.playbacks_file:
         # Activation key takes precedence
         if key_val == activation_key or key_val == "Key.f3": # F3
@@ -466,12 +482,12 @@ if __name__ == "__main__":
     if XInput.get_connected()[0]:
         controller_detected = True
         writer.set_color('green')
-        print('XInput controller detected! Recording is enabled', file=writer)
+        print('XInput controller detected! Recording & Transparency are enabled', file=writer)
         writer.set_color('white')
         my_handler: XInput.EventHandler = MyHandler(0)
         my_gamepad_thread = XInput.GamepadThread(my_handler)
     else:
-        print('No XInput controller detected - Recording is disabled', file=writer)
+        print('No XInput controller detected - Recording & Transparency are disabled', file=writer)
     eddiecontroller.vcontroller.connect(False)
     load_config()
     w.show()

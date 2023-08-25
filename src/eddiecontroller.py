@@ -264,7 +264,7 @@ def run_scenario():
 def record(output_path):
     global is_recording
     is_recording = True
-    print('Recording started, press select on your controller to stop', file=writer)
+    print('Recording started, press RIGHT_THUMB on your controller to stop', file=writer)
     play_sound_async(RECORD_START_SOUND)
     recording_output = recording.record(rec_config, direction_map_index)
     is_recording = False
@@ -283,6 +283,11 @@ def record(output_path):
             print('Writing recording file failed:', e, file=writer)
             writer.set_color('white')
 
+def transparency():
+    play_sound_async(RECORD_START_SOUND)
+    transparency_output = recording.transparent_playback(rec_config, direction_map_index, symbols_map, direction_value_map, vcontroller, controller_state)
+    play_sound_async(RECORD_END_SOUND)
+    print('Transparency mode stopped', file=writer)
 
 # Returns true iff the playbacks file is valid
 def validate_playbacks() -> bool:

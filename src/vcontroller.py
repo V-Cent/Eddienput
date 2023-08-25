@@ -23,6 +23,11 @@ class State:
     LT_value = 0x00
     RT_value = 0x00
 
+    LX_value = 0x0000
+    LY_value = 0x0000
+    RX_value = 0x0000
+    RY_value = 0x0000
+
     def update_state(self, button, value):
         if button == 'TriggerL':
             self.LT_value = value * 0xff
@@ -37,10 +42,22 @@ class State:
             rest = self.buttons_value & mask
             self.buttons_value = rest + base * value
 
+    def update_thumb(self, LX, LY, RX, RY):
+        #values between -32768 and 32767
+        self.LX_value = int(LX * 0x7fff)
+        self.LY_value = int(LY * 0x7fff)
+        self.RX_value = int(RX * 0x7fff)
+        self.RY_value = int(RY * 0x7fff)
+
     def reset(self):
         self.buttons_value = 0x0000
         self.LT_value = 0x00
         self.RT_value = 0x00
+
+        self.LX_value = 0x0000
+        self.LY_value = 0x0000
+        self.RX_value = 0x0000
+        self.RY_value = 0x0000
 
 
 def connect(use_dinput=False):
@@ -52,8 +69,7 @@ def connect(use_dinput=False):
 
 
 def set_state(state):
-    return _vcontroller.set_state(state.buttons_value, state.LT_value, state.RT_value)
-
+    return _vcontroller.set_state(state.buttons_value, state.LT_value, state.RT_value, state.LX_value, state.LY_value, state.RX_value, state.RY_value)
 
 def disconnect():
     return _vcontroller.disconnect()

@@ -1,11 +1,13 @@
-from XInput import State, get_state, get_button_values, get_trigger_values, get_connected
+from XInput import State, get_state, get_button_values, get_trigger_values, get_thumb_values, get_connected
 from clock import Clock
 import sys
 import json
+import eddiecontroller
+import vcontroller
 
 writer = None
 directions = ["P1_directions", "P2_directions"]
-STOP_BUTTON = "BACK"
+STOP_BUTTON = "RIGHT_THUMB"
 
 DIRECTIONS = {
     'DPAD_UP': False,
@@ -145,6 +147,78 @@ def record(symbol_map: dict, direction_index: int):
 
     return s
 
+def transparent_playback(symbol_map: dict, direction_index: int, input_map: dict, direction_value_map: dict, vcontroller: vcontroller, controller_state: State):
+    c = Clock(fps=60)
+    c.reset
+    frames_raw = []
+    connected = get_connected()
+    if not connected[0]:
+        print('Controller disconnected')
+        return None
+    while 1:
+        c.sleep()
+        state: State = get_state(0)
+        button_values = get_button_values(state)
+        # print(button_values)
+        trigger_values = get_trigger_values(state)
+        stick_values = get_thumb_values(state)
+        # print(stick_values)
+        button_values.update({
+         'LEFT_TRIGGER': False,
+         'RIGHT_TRIGGER': False,
+         'DPAD_DOWN_LEFT': False,
+         'DPAD_DOWN_RIGHT': False,
+         'DPAD_UP_LEFT': False,
+         'DPAD_UP_RIGHT': False
+         })
+        # print(trigger_values)
+        no_dpad = 0
+        if (not(button_values['DPAD_UP']) and not(button_values['DPAD_DOWN']) and not(button_values['DPAD_LEFT']) and not(button_values['DPAD_RIGHT'])):
+            no_dpad = 1
+        if trigger_values[0] == 1.0:
+            button_values['LEFT_TRIGGER'] = True
+        if trigger_values[1] == 1.0:
+            button_values['RIGHT_TRIGGER'] = True
+        if button_values['DPAD_DOWN'] and button_values['DPAD_LEFT']:
+            button_values['DPAD_DOWN'] = False
+            button_values['DPAD_LEFT'] = False
+            button_values['DPAD_DOWN_LEFT'] = True
+        if button_values['DPAD_DOWN'] and button_values['DPAD_RIGHT']:
+            button_values['DPAD_DOWN'] = False
+            button_values['DPAD_RIGHT'] = False
+            button_values['DPAD_DOWN_RIGHT'] = True
+        if button_values['DPAD_UP'] and button_values['DPAD_LEFT']:
+            button_values['DPAD_UP'] = False
+            button_values['DPAD_LEFT'] = False
+            button_values['DPAD_UP_LEFT'] = True
+        if button_values['DPAD_UP'] and button_values['DPAD_RIGHT']:
+            button_values['DPAD_UP'] = False
+            button_values['DPAD_RIGHT'] = False
+            button_values['DPAD_UP_RIGHT'] = True
+
+        if button_values[STOP_BUTTON]:
+            break
+
+        controller_state.update_thumb(stick_values[0][0], stick_values[0][1], stick_values[1][0], stick_values[1][1])
+
+        for button, value in button_values.items():
+            symbol = ""
+            if button in DIRECTIONS:
+                symbol = symbol_map[directions[direction_index]][button]
+            else:
+                symbol = symbol_map["Symbols"][button]
+            if symbol == "RIGHT_THUMB" or symbol == "LEFT_THUMB":
+                continue
+            keyID = input_map[symbol]
+            if button in DIRECTIONS:
+                if value == 1:
+                    eddiecontroller.set_button_value('Dpad', direction_value_map[keyID['Dpad']])
+            else:
+                eddiecontroller.set_button_value(keyID, value)
+            if no_dpad:
+                eddiecontroller.set_button_value('Dpad', 0x0)
+            vcontroller.set_state(controller_state)
+    return 0
 
 if __name__ == "__main__":
     writer = sys.stdout

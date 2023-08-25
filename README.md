@@ -2,9 +2,45 @@
 
 Eddienput (pronounced "edd-input") is a programmable virtual controller mainly aimed at enhancing training mode for all fighting games on PC.
 
+## Transparency Fork
+
+Provides manual control of P2 by mimicking P1, which can be helpful to test certain scenarios.
+To activate transparency mode, press F12. (Keep in mind that on Steam, F12 is also screenshot.)
+
+Changes:
+
+- Transparency Mode (F12).
+- Stick support for Transparency Mode
+- Simple stick methods for vcontroller.
+- New vcontroller.dll.
+- Changed interrupt key from BACK to R3 (Right Stick Click).
+
 ## Prerequisites:  
 
 Install ViGEmBusSetup_x64.msi (provided with the program)
+
+## Simple Build Instructions
+
+Requirements:
+
+- Python 3.7 (Important! 3.8 and 3.9 will not work) (<https://www.python.org/downloads/release/python-379/>)
+- Recommendation: rename exe to python37 and run everything (pip and pipenv) under python37 -m ...
+- PyInstaller (pip), Pipenv(pip), Visual Studio 2019 (used 2022 and it worked)
+- PyQt5 (pip), pynput (pip), XInput-Python (pip)
+
+Steps:
+
+- Clone Repo (git clone `https://github.com/V-Cent/Eddienput.git` --recurse-submodules)
+- Go into ViGEmClient and Build for Release
+- Go into vcontroller and Build for Release
+
+On your terminal of choice:
+
+- Install dependencies (python37 -m pipenv install)
+- Enter into the project's virtualenv (python37 -m pipenv shell)
+- Run .\altBuild.bat
+
+Done
 
 ## Usage:
 

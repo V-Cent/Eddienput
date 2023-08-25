@@ -106,7 +106,7 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  __declspec(dllexport) int set_state(int buttons_value, int LT_value, int RT_value)
+  __declspec(dllexport) int set_state(int buttons_value, int LT_value, int RT_value, int LX_value, int LY_value, int RX_value, int RY_value)
   {
     //
     // The XINPUT_GAMEPAD structure is identical to the XUSB_REPORT structure
@@ -115,6 +115,12 @@ extern "C" {
       state.wButtons = buttons_value;
       state.bLeftTrigger = LT_value;
       state.bRightTrigger = RT_value;
+
+      state.sThumbLX = LX_value;
+      state.sThumbLY = LY_value;
+      state.sThumbRX = RX_value;
+      state.sThumbRY = RY_value;
+
       if (DINPUT)
       {
         DS4_REPORT rep;
